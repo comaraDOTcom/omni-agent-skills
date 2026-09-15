@@ -6,6 +6,23 @@ Changelog tracking begins with the next release. Historical releases are not bac
 
 Since 1.11.0 both plugins share one version, held in `versions.json` and stamped into the manifests by CI. Entries below 1.11.0 use the older scheme, where the heading number belonged to whichever plugin that release was for — which is why those version numbers do not read in order.
 
+## [1.12.0] - 2026-09-15
+
+### omni-analytics
+
+_Summary: sync skills with Omni CLI v1.3.0. The command set is identical to 1.2.2 and no request or response schema changed; the release adds four presentation flags — `--chart`, `--chart-value`, `--chart-rows`, `--workbook` — and renders `query run` / `query wait` results as formatted tables in human mode. JSON-mode output is unchanged. Every behavior below was probed against the released 1.3.0 binary._
+
+**Added**
+- **`omni-query` — `--workbook` and `workbookUrl`.** New row in *Request-level options*: the ephemeral-workbook link comes back in a response header, printed under human output or as `{"workbookUrl": …}` on **stderr** in JSON mode, and is **silently omitted** when the user lacks the workbooks permission on the model.
+- **`omni-query` — *Showing results to a person*.** Human-mode tables and `--chart` bar tables for presenting results, with the caveat that neither carries the job envelope, so validation stays a JSON-mode step.
+
+**Changed**
+- **`omni-query` — NDJSON and long-running queries.** The NDJSON warning now applies to JSON mode, and says to pass `-o json` when parsing. *Long-Running Queries* notes that JSON mode never polls: `remaining_job_ids` in the footer is the only sign a result is incomplete.
+- **`omni-api-conventions` rule — Output.** Pass `-o json` explicitly when parsing, since a default from `omni config set-format` or `OMNI_OUTPUT_FORMAT` also applies to piped calls and turns `query run` into a rendered table. Keep stderr out of stdout, since `--workbook` writes its link there on a successful call.
+
+**Fixed**
+- **`omni-admin` — connection environments.** The Connections example called a list command the CLI does not have; it now points at `connection-environments-create --schema` and names the create / update / delete operations.
+
 ## [1.11.0] - 2026-09-10
 
 _Both plugins move to a single shared version with this release. They ship from
