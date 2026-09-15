@@ -6,6 +6,24 @@ Changelog tracking begins with the next release. Historical releases are not bac
 
 Since 1.11.0 both plugins share one version, held in `versions.json` and stamped into the manifests by CI. Entries below 1.11.0 use the older scheme, where the heading number belonged to whichever plugin that release was for — which is why those version numbers do not read in order.
 
+## [1.13.0] - 2026-09-15
+
+### omni-analytics
+
+_Summary: sync skills with Omni CLI v1.3.1. The release adds two command groups, `skills` and `color-palettes` (243 commands, up from 233), and syncs the API spec: `query run` documents the `cache` values the API accepts, `query wait --job-ids` is no longer required client-side, `models content-validator-get` gains `--force-full-validation`, list endpoints document their page-size and sort enums, and topic and AI job-result responses gain composite-topic and per-action `status` schemas. No command or flag was removed. Every behavior below was checked against the released 1.3.1 binary._
+
+**Added**
+- **`omni-ai-optimizer` — *Agent Skills*.** `omni skills` list / get / create / update / delete, with the behaviors that do not surface as errors: `list` is scoped to the caller for non-admins and omits `body`, and a skill's `description` is what the agent picks between skills on.
+- **`omni-admin` — *Color Palettes*.** `omni color-palettes` commands; `list` excludes built-in palettes, and an update or delete changes every chart using the palette without saying which.
+- **`omni-model-explorer` — composite topics.** `list-topics` mixes regular and composite topics; a composite entry has `is_composite: true`, component `topics[]`, and no `base_view_name`.
+- **Content validator — `--force-full-validation`** (`omni-model-explorer`, `omni-admin`, `omni-model-builder` schema-refresh reference). On large content the validator checks references without planning queries, so a clean result can miss queries that no longer plan.
+
+**Changed**
+- **`omni-query` — `cache` values.** Adds `SkipCacheAndRebuildExtracts`.
+- **`omni-query` — async job actions.** Each action's `status` (`complete` / `partial` / `skipped` / `failed`) is separate from `result.status`; a `partial` action with a successful query still answered less than was asked.
+- **`omni-content-builder` — app write warnings.** `warnings` also flags `settings.allowDefaultMapProviders` when the org's app policy turns map providers off; the setting saves but no map tile loads.
+- **`omni-api-conventions` rule.** `query wait --job-ids` leaves the list of client-side required flags, and the `--schema` enum-drift caveat drops the `query run` `cache` example now that the schema lists the accepted values.
+
 ## [1.12.0] - 2026-09-15
 
 ### omni-analytics
