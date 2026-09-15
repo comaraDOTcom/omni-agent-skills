@@ -239,7 +239,7 @@ These keys sit at the **top level** of the body, beside `query`, not inside it. 
 | Option | Description |
 |--------|-------------|
 | `resultType` | Output format: `csv`, `xlsx`, or `json`. **Top-level only** — inside `query` it's silently ignored and you get Arrow. Omit for the default base64 Arrow response. |
-| `cache` | Cache policy: `Standard`, `SkipRequery`, `SkipCache`. |
+| `cache` | Cache policy: `Standard` (default), `SkipRequery`, `SkipCache`, `SkipCacheAndRebuildExtracts` (also rebuilds the extracts the query reads from). |
 | `userId` | Run as another user (org-scoped API keys); also the `--user-id` flag. |
 | `branchId` | Run against a model **branch** (validate draft model changes on live data). Must be a branch of the same shared model. |
 | `planOnly` | Return the execution plan **without running** the query (validate/debug at no warehouse cost). Cannot combine with `resultType`. |
@@ -349,7 +349,7 @@ omni documents get-queries <dashboardId>
 # Run as a specific user
 omni query run --body '{ "query": { ... }, "userId": "user-uuid-here" }'
 
-# Cache policy (valid values: Standard, SkipRequery, SkipCache)
+# Cache policy (valid values: Standard, SkipRequery, SkipCache, SkipCacheAndRebuildExtracts)
 omni query run --body '{ "query": { ... }, "cache": "SkipCache" }'
 ```
 
@@ -428,7 +428,7 @@ omni ai job-result "$JID" -o json
 
 The result contains an `actions` array with each step the AI took — look for actions with `type: "generate_query"` to extract the generated queries. The response also includes `resultSummary` with the AI's narrative interpretation.
 
-Before presenting an async job answer, inspect the `actions[]` entries. A job can reach `COMPLETE` while an individual `generate_query` action has `status: "pending"` or no `csvResult`; the narrative may then describe a query that was generated but not executed. If a required action is pending, do not treat the job summary as final. Run or regenerate that specific query, or continue the same analysis with another async job, then present only validated results.
+Before presenting an async job answer, inspect the `actions[]` entries. A job can reach `COMPLETE` while an individual `generate_query` action has `status: "pending"` or no `csvResult`; the narrative may then describe a query that was generated but not executed. Each action's `status` says how that step ended — `complete`, `partial` (did some of what was asked and says what is missing), `skipped`, or `failed` — and is separate from `result.status` (`success` / `error`), which only says whether the generated query ran. A `partial` action with `result.status: "success"` still answered less than was asked. If a required action is pending, partial, or failed, do not treat the job summary as final. Run or regenerate that specific query, or continue the same analysis with another async job, then present only validated results.
 
 Additional job commands:
 - `omni ai job-cancel <jobId>` — cancel a running job
