@@ -245,10 +245,15 @@ These keys sit at the **top level** of the body, beside `query`, not inside it. 
 | `planOnly` | Return the execution plan **without running** the query (validate/debug at no warehouse cost). Cannot combine with `resultType`. |
 | `formatResults` | On exports, emit **formatted** values (e.g. `$1,234.56`) vs. raw. Requires `resultType`; ignored for Arrow. |
 | `timezone` | Per-request timezone override (IANA id). Requires the connection setting `allowsUserSpecificTimezones` **and** the org setting `allowsDocumentCanUseTimezoneOverride`; silently no-ops if either is off. |
+| `workbookUrl` | Also create an ephemeral workbook for the query, so the user gets an "open in Omni" link. On CLI ≥ 1.3.0 pass `--workbook` instead of setting it by hand. The link comes back in a response **header**, not the body: the CLI prints it under human output, or as `{"workbookUrl": …}` on **stderr** in JSON mode. If the (target) user lacks the workbooks permission on the model, the query still succeeds and the link is **silently omitted** — no link means no permission, not a failure to retry. |
+
+### Showing results to a person (CLI ≥ 1.3.0)
+
+In human mode `query run` renders a formatted table using the model's labels and number formats, and polls unfinished jobs itself. `--chart` draws the same result as a terminal bar table (`--chart-value` picks measures, `--chart-rows` caps rows); it still draws when piped, at 80 columns, so it fits a chat code block. `--chart` drops a `resultType` from the body and is refused with `-o json`. Neither view carries the job envelope — **validate with a JSON-mode run** (below), then render for the user.
 
 ## Handling and Validating Results
 
-> **`omni query run` streams NDJSON — it is NOT one JSON object.** The CLI prints **multiple JSON objects, one per line**: first a `{"jobs_submitted":{…}}` line, then one or more `{"job_id":…,"status":"COMPLETE","summary":{…}}` job lines (and, with `resultType`, the result payload). A naive `json.loads(entire_stdout)` throws `JSONDecodeError: Extra data`. **Don't write a single-object parser** — iterate lines and pick the one you need, or slurp with `jq -s` / read the **last** non-empty line. `--compact` puts each object on one tidy line.
+> **`omni query run` streams NDJSON — it is NOT one JSON object.** In JSON mode (pass `-o json` when parsing — a human default from `config set-format` or `OMNI_OUTPUT_FORMAT` applies even when piped, and prints a table instead) the CLI prints **multiple JSON objects, one per line**: first a `{"jobs_submitted":{…}}` line, then one or more `{"job_id":…,"status":"COMPLETE","summary":{…}}` job lines (and, with `resultType`, the result payload). A naive `json.loads(entire_stdout)` throws `JSONDecodeError: Extra data`. **Don't write a single-object parser** — iterate lines and pick the one you need, or slurp with `jq -s` / read the **last** non-empty line. `--compact` puts each object on one tidy line.
 
 Default response: base64-encoded Apache Arrow table. Arrow results are binary — you cannot parse individual row data from the raw response. The row count is at **`cache_metadata.num_rows`** (not `summary.row_count`). The `summary` object holds validation metadata: `invalid_calculations`, `missing_fields`, `display_sql` (the compiled SQL), `omni_sql_parse_failed`. (`--schema` won't show any of this — it describes the request body only; response shape comes from a live response. See the [`omni-api-conventions`](../../rules/omni-api-conventions.mdc) rule.)
 
@@ -330,6 +335,8 @@ If the response includes `remaining_job_ids`, poll until complete:
 ```bash
 omni query wait --job-ids job-id-1,job-id-2
 ```
+
+JSON mode never polls for you: the stream ends at the wait window and the footer's `remaining_job_ids` is the only sign the result is incomplete. (Human-mode output on CLI ≥ 1.3.0 does poll.)
 
 ## Running Queries from Dashboards
 

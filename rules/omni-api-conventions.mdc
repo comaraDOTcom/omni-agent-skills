@@ -157,6 +157,8 @@ omni documents v2-create --schema --field queryPresentations.data  # just the ti
 - The default is `-o auto` (human in a TTY, JSON when piped or redirected).
 - Use `--compact` for single-line JSON (good for piping to `jq`).
 - Errors go to stderr as JSON with `error` and `status` fields
+- **Pass `-o json` explicitly when you parse output.** `auto` only decides when nobody chose: a default set with `omni config set-format` or `OMNI_OUTPUT_FORMAT` applies to piped calls too. On CLI ≥ 1.3.0 this matters for `query run` / `query wait`, whose human output is a rendered table (field labels, model number formats, remaining jobs polled to completion) with no job envelope — no `summary`, `cache_metadata`, or `remaining_job_ids` to validate against.
+- **Keep stderr out of stdout.** Informational output can land on stderr on a successful call — e.g. `query run --workbook` in JSON mode writes `{"workbookUrl": …}` there — so `2>&1` corrupts an NDJSON or CSV payload you meant to parse.
 
 ## Error Handling
 

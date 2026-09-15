@@ -63,8 +63,8 @@ omni connections list
 # Schema refresh schedules
 omni connections schedules-list <connectionId>
 
-# Connection environments
-omni connections connection-environments-list
+# Connection environments (create, update <id>, delete <id>)
+omni connections connection-environments-create --schema
 ```
 
 ### Commit Signing Key Rotation (CLI ≥ 1.1.2)
