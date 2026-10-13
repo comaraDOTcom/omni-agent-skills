@@ -6,6 +6,27 @@ Changelog tracking begins with the next release. Historical releases are not bac
 
 Since 1.11.0 both plugins share one version, held in `versions.json` and stamped into the manifests by CI. Entries below 1.11.0 use the older scheme, where the heading number belonged to whichever plugin that release was for — which is why those version numbers do not read in order.
 
+## [1.21.0] - 2026-10-13
+
+### omni-analytics
+
+_Summary: guidance for operational and exec dashboards that viewers can act on, from a customer build on CLI 1.4.0. A new `omni-content-builder` reference covers ordering, table width, drill paths, relative dates, a three-page click path, colour, value-vs-outcome and 100% share charts, and legends. It also documents removing a control, a `map` entry that stays `false`, container values the API rejects, and query ids that change on a patch. `omni-model-builder` and `omni-admin` get T-SQL query views, sample query keys, and alerts._
+
+**Added**
+- **`omni-content-builder` — *Building dashboards people can act on*.** New `references/dashboard-style.md`, linked from *Design defaults* with six one-line rules: at-risk before lost with an owner on every row, tables of 5 columns or fewer with no truncated headers (a markdown `{{#result}}` list row otherwise), `.value` so names and numbers drill, relative date filters with no month names in labels, one meaning per colour, and fixed scope in tile filters with 5 or fewer viewer controls. The reference adds the click-path pattern (overview, department × business unit heatmap, a "pick a team" page with an in-page single-select filter and an in-tile "View by" switcher), stacked recovered + not-recovered bars for value vs outcome, share measures for 100% bars, legend and axis formats, and a pre-publish checklist.
+- **`omni-content-builder` — *Removing a control*.** Set `controls.data.<id>` to `null`, send `controls.order` without it, and remove its content-item from `containers`. Dropping it from `order` alone returns `400 order is missing control IDs`.
+- **`omni-admin` — *Alerts*.** `schedules create` with `conditionType` (`RESULTS_PRESENT`, `RESULTS_MISSING`, `RESULTS_CHANGED`, `RESULTS_UNCHANGED`) and `conditionQueryMapKey`; a watchlist tile of categorical columns so `RESULTS_CHANGED` fires on band changes, not daily; confirm recipients before creating.
+- **`omni-model-builder` — *T-SQL query views*.** On SQL Server and Fabric, a `WITH` CTE in a query view fails because Omni wraps the SQL as a derived table; nest derived tables. Alias every inlined `${other_query_view}`.
+- **`omni-content-builder` — *Evals*.** Four cases: an exec dashboard of at-risk items, removing a filter control, a 100% share chart from share measures, and re-enabling a tile a control had mapped `false`.
+
+**Changed**
+- **`omni-content-builder` — *Description*.** Load the skill before any document API call, even when a local build script exists.
+- **`omni-content-builder` — *Control `map`*.** `map` merges by key and a `false` entry persists; set `map["<tileKey>"]` to the field name to re-enable a tile. A tile-level scope filter on a field that also has a dashboard control is ORed with it, so a blank control cancels it.
+- **`omni-content-builder` — *Containers*.** `style: "none"` or `padding: null` on a stack returns `400 containers: Invalid containers`; use `style: "tile"` with `padding: 0`.
+- **`omni-content-builder` — *Query ids*.** Re-sending a tile's query in a patch gives the tab a new query id and breaks `?w=` deep links; round-trip the tile from `v2-get-draft` to keep it.
+- **`omni-model-builder` — *Before a session*.** Confirm the branch still exists (`models list --include activeBranches`) and check drafts with `list-drafts`; profile grain, units, and history start before modelling.
+- **`omni-model-builder` — *Sample queries and measure filters*.** A `sample_queries` key is the UI name, so use quoted Title Case; use relative dates in sample queries and `ai_context`. Compare a filtered measure with its unfiltered twin, and move the condition into `sql:` if they match.
+
 ## [1.20.0] - 2026-10-01
 
 ### omni-analytics

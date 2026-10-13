@@ -334,6 +334,36 @@ omni schedules add-recipients <scheduleId> --body '{ "recipients": ["team@compan
 > `omni schedules update --schema` and carry across every value you mean to
 > keep.
 
+### Alerts
+
+An alert is a schedule with a condition: it runs on its cron and delivers only when the condition holds. Add `conditionType` and `conditionQueryMapKey` to the `schedules create` body (each requires the other):
+
+| `conditionType` | Delivers when the watched tile… |
+|---|---|
+| `RESULTS_PRESENT` | returns rows |
+| `RESULTS_MISSING` | returns no rows |
+| `RESULTS_CHANGED` | returns different results from the last run |
+| `RESULTS_UNCHANGED` | returns the same results as the last run |
+
+`conditionQueryMapKey` is the watched tile's key in the dashboard's `queryPresentations.data` (`omni documents v2-get`), and `filterConfig` sets the dashboard filter values for this alert, so each alert can watch its own subset. Confirm field names with `omni schedules create --schema` before writing the body.
+
+```bash
+omni schedules create --body '{
+  "identifier": "dashboard-identifier",
+  "name": "Alert - projects reaching 80% of budget",
+  "schedule": "0 8 ? * MON-FRI *",
+  "timezone": "Europe/London",
+  "destinationType": "email",
+  "format": "link_only",
+  "conditionType": "RESULTS_CHANGED",
+  "conditionQueryMapKey": "7",
+  "recipients": [{ "email": "owner@company.com" }]
+}'
+```
+
+- **Watchlist tile for `RESULTS_CHANGED`.** Build the watched tile from categorical columns only (item, owner, band) and filter it to rows at the threshold. It then changes only when a row enters, leaves, or changes band. A tile that includes a numeric column changes on every run, so the alert fires daily.
+- **An alert sends messages to people.** Confirm the recipients with the user before creating one.
+
 **Email-only users** are the recipients that exist only to receive deliveries:
 `omni users list-email-only` / `create-email-only` / `create-email-only-bulk`,
 and `delete-email-only-bulk` (CLI ≥ 1.4.0). The bulk delete is **partially
