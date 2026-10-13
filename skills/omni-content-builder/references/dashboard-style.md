@@ -59,6 +59,17 @@ A `{{#result}}…{{/result}}` section repeats once per result row. Inside it, fi
 
 The bar's scale is 0–150%, so the 100% target marker sits at 66.67%. Clamp with `min(100%, …)` so overruns don't spill. The tile needs `automaticVis: false` ([visConfig.md](visConfig.md)); sort and `limit` the query, since the section renders every row returned.
 
+### Trade-off: markdown looks better but is less flexible
+
+A list row reads better than a native table or chart, but it costs flexibility. Choose it on purpose:
+
+- **Viewers can't change it.** They can't re-sort it, resize columns, add a field, or switch it to a chart in the UI. Changing what it shows means editing the HTML template.
+- **Authors and the AI agent have more to change.** A new field or a renamed field needs the query, the template and its CSS changed together. A field missing from `query.fields` renders as an empty string with no error.
+- **Drilling only works where you put `.value`.** Native tables and charts drill on every cell; a markdown tile drills only on those tokens.
+- **Controls that change fields don't carry through.** A `FIELD_SELECTION` or field-picker swap won't update the template, which still names the old field. A templated `breakdown` dimension (below) does carry through, because the field name stays the same.
+
+Use markdown for short, curated lists that leaders read, such as "the 7 projects to act on". Use native tables and charts where people explore: re-sorting, adding fields, drilling across many cells. A deep-dive page usually needs both.
+
 ## Every view drills
 
 In markdown tiles, use **`.value`** for names and key numbers: it renders a drillable, interactive element. **`.value_static`** is display-only text; use it for secondary context. **`.raw`** belongs only inside CSS or HTML attributes (`width:calc(…)`, `class="…"`). A dashboard whose markdown uses only `.value_static` has no drill path. Token reference: [mustache.md](mustache.md).
@@ -81,7 +92,30 @@ Three pages, each answering the next question:
 
 1. **Overview** — the KPI that says whether there is a problem.
 2. **Breakdown** — where it is: a `heatmap` of department × business unit ([visConfig.md](visConfig.md#config-object-heatmap)), clickable to drill.
-3. **Deep dive** — "pick a team": a single-select string filter placed **in the page**, not the filter bar, and a "View by" switcher **inside the chart tile** to swap the breakdown dimension.
+3. **Deep dive** — "pick a team": a single-select string filter placed **in the page**, not the filter bar, and a "View by" filter **inside the chart tile** that changes which dimension the chart breaks down by.
+
+**Build "View by" in the model, not with `FIELD_SELECTION`.** Observed: a `FIELD_SELECTION` switcher swaps the field in the tile's query, but a cartesian chart names its category field in `visConfig` (`y.field` / `x.field`, plus the axis `sort`), so pressing the switcher changed nothing on the chart. Use a filter-only field and a templated `CASE` dimension instead ([omni-model-builder → templated-filters.md](../../omni-model-builder/references/templated-filters.md)). The chart always plots `breakdown`, and "View by" is an ordinary single-select filter:
+
+```yaml
+# topic views: block (or the view file)
+time:
+  filters:
+    view_by:
+      type: string
+      suggestion_list: [ { value: Person }, { value: Client }, { value: Month } ]
+      default_filter: { is: Person }
+      filter_single_select_only: true
+  dimensions:
+    breakdown:
+      sql: |-
+        CASE {{ filters.time.view_by.value }}
+          WHEN 'Person' THEN ${time.person}
+          WHEN 'Client' THEN ${jobs.client}
+          WHEN 'Month'  THEN FORMAT(${time.work_date}, 'yyyy-MM')
+        END
+```
+
+On SQL Server and Fabric, `CONVERT(varchar(7), x, 120)` in a model field failed with "CAST second argument should always be a type"; `FORMAT(x, 'yyyy-MM')` worked. Sort the chart by a measure (for example hours, descending) rather than by the breakdown, so every View by option reads sensibly.
 
 ```jsonc
 // controls.data
@@ -89,21 +123,19 @@ Three pages, each answering the next question:
   "type": "string", "kind": "EQUALS", "fieldName": "time.team", "label": "Team",
   "values": ["Design"], "filterControlType": "singleValueEquals" }, "map": {} },
 "view_by": { "config": {
-  "id": "view_by", "type": "FIELD_SELECTION", "kind": "FIELD", "display": "BUTTON_TOGGLE",
-  "label": "View by", "field": "time.person",
-  "options": [ { "label": "Person", "value": "time.person" },
-               { "label": "Client", "value": "time.client" },
-               { "label": "Task",   "value": "time.task_type" } ] },
-  "map": {} }
+  "type": "string", "kind": "EQUALS", "fieldName": "time.view_by", "label": "View by",
+  "values": ["Person"], "filterControlType": "singleValueEquals" },
+  "map": { /* "<every other tile key>": false */ } }
 
-// page-3 grid: the filter as its own grid item, above the chart
+// page-3 grid: the team filter as its own grid item, above the chart
 { "type": "filter", "id": "team", "instanceKey": "p3-team",
   "appearance": { "control": "buttonToggle", "display": "inline" },
   "gridPosition": { "x": 0, "y": 7, "w": 24, "h": 6 } }
 
-// the chart tile stack's children: chart, then the switcher
-{ "as": "chart", "id": "9", "type": "query", "instanceKey": "tile-viz-9" },
-{ "type": "control", "id": "view_by", "instanceKey": "tile-9-view-by" }
+// the chart tile stack's children: the View by filter, then the chart (which plots time.breakdown)
+{ "type": "filter", "id": "view_by", "instanceKey": "tile-9-view-by",
+  "appearance": { "control": "buttonToggle", "display": "inline" } },
+{ "as": "chart", "id": "9", "type": "query", "instanceKey": "tile-viz-9" }
 ```
 
 A page-placed filter still applies to every tile it maps to, on every page. Scope it with `map` ([controls.md](controls.md#map--per-tile-scoping)). Page and placement mechanics: [containers.md](containers.md).
