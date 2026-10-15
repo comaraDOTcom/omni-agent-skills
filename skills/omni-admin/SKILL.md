@@ -334,7 +334,7 @@ omni schedules add-recipients <scheduleId> --body '{ "recipients": ["team@compan
 > `omni schedules update --schema` and carry across every value you mean to
 > keep.
 
-Alerts (a schedule with a condition on one dashboard tile) need no admin rights; they are covered in **`omni-content-builder`** → *Dashboard alerts*.
+Alerts (a schedule with a condition on one dashboard tile) need no admin rights; they are covered in **`omni-content-explorer`** → *Alerts*.
 
 **Email-only users** are the recipients that exist only to receive deliveries:
 `omni users list-email-only` / `create-email-only` / `create-email-only-bulk`,

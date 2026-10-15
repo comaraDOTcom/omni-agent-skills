@@ -200,7 +200,7 @@ Downloads are asynchronous: start one with `omni dashboards download`, poll `dow
 
 ## Dashboard Alerts
 
-An alert is a schedule with a condition on one tile: `schedules create` with `conditionType` and `conditionQueryMapKey`. The condition types, the watchlist-tile pattern for `RESULTS_CHANGED`, and how to design a tile worth subscribing to: [references/alerts.md](references/alerts.md). An alert sends messages to people, so confirm the recipients first.
+Alerts on a dashboard tile are covered in **`omni-content-explorer`** → *Alerts*, including how to shape the watched tile (categorical columns for `RESULTS_CHANGED`, about 10 rows or fewer).
 
 ## Docs Reference
 
