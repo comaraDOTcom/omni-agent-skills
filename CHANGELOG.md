@@ -21,7 +21,7 @@ _Summary: guidance for operational and exec dashboards that viewers can act on, 
 
 **Changed**
 - **`omni-content-builder` — *Description*.** Load the skill before any document API call, even when a local build script exists.
-- **`omni-content-builder` — *Control `map`*.** `map` merges by key and a `false` entry persists; set `map["<tileKey>"]` to the field name to re-enable a tile. A tile-level scope filter on a field that also has a dashboard control is ORed with it, so a blank control cancels it.
+- **`omni-content-builder` — *Control `map`*.** `map` merges by key and a `false` entry persists; set `map["<tileKey>"]` to the field name to re-enable a tile. A dashboard control replaces a tile-level filter on the same field, so a blank control shows every row.
 - **`omni-content-builder` — *Containers*.** `style: "none"` or `padding: null` on a stack returns `400 containers: Invalid containers`; use `style: "tile"` with `padding: 0`.
 - **`omni-content-builder` — *Query ids*.** Re-sending a tile's query in a patch gives the tab a new query id and breaks `?w=` deep links; round-trip the tile from `v2-get-draft` to keep it.
 - **`omni-model-builder` — *Before a session*.** Confirm the branch still exists (`models list --include activeBranches`) and check drafts with `list-drafts`; profile grain, units, and history start before modelling.

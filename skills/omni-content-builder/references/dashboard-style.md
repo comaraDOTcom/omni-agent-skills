@@ -35,7 +35,7 @@ Field-tested on a customer build (CLI 1.4.0). Where a result is "observed", it w
 
 ## List rows in a markdown tile
 
-A `{{#result}}…{{/result}}` section repeats once per result row. Inside it, field tokens are relative to the row: `{{view.field.value}}`, not `{{result._first.view.field.value}}`. One row = a bold title, one muted context line, one number, and an optional bar against a target:
+A `{{#result}}…{{/result}}` section repeats once per result row; inside it, field tokens are relative to the row ([mustache.md](mustache.md#iterating-rows-with-result)). One row = a bold title, one muted context line, one number, and an optional bar against a target:
 
 ```html
 <style>
@@ -185,7 +185,7 @@ Check the axis reads 0–100% in a PNG render.
 
 - **Fixed scope** (one business unit, open status only) goes in each tile's `query.filters`, not the filter bar. Nobody changes it, so it shouldn't take a control.
 - **At most 5 viewer-facing controls**, each one a viewer would change.
-- **A tile-level scope filter on a field that also has a dashboard control is cancelled** when the control is blank, because two filters on one field OR together ([controls.md](controls.md#map--per-tile-scoping)). Scope through a different field that has no dashboard control.
+- **A dashboard control replaces a tile-level filter on the same field.** With the control blank the tile shows every row, and with it set the tile shows the control's value only ([controls.md](controls.md#map--per-tile-scoping)). Scope through a different field that has no dashboard control.
 
 ## Checklist before publishing
 
