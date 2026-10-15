@@ -27,13 +27,6 @@ omni schedules create --body '{
 }'
 ```
 
-- **Watchlist tile for `RESULTS_CHANGED`.** Build the watched tile from categorical columns only (item, owner, band) and filter it to rows at the threshold. It then changes only when a row enters, leaves, or changes band. A tile that includes a numeric column changes on every run, so the alert fires daily.
 - **An alert sends messages to people.** Confirm the recipients with the user before creating one.
-
-## Choosing a tile worth alerting on
-
-- **Keep the list short.** An alert that lists 50 or more rows every run gets ignored. Filter the tile to the rows someone should act on (a threshold, a recent window such as "crossed 100% in the last 14 days", or a minimum size), and aim for about 10 rows or fewer on a normal day.
-- **Pick the condition per tile.** `RESULTS_CHANGED` suits a watchlist: you hear when a row enters or leaves. `RESULTS_PRESENT` suits an exception list that should normally be empty, for example a clean-up queue.
-- **Match the cron to when the data is complete.** A weekly "missing timesheets" list run on Monday morning flags everyone who has not submitted yet. Run it after the submission deadline, and filter out leave.
-- **Say which condition to use on the tile.** Put it in the subtitle ("Alert: Results changed, daily"), so a viewer setting the alert in the UI picks the right one.
-- **Put alertable lists on their own page,** with optional filters (for example "only my jobs") next to them. The alert keeps the filter values set when it is created (`filterConfig`).
+- **Match the cron to when the data is complete.** A weekly "missing timesheets" list run on Monday morning flags everyone who has not submitted yet. Run it after the submission deadline.
+- **The tile decides whether the alert is useful.** A watchlist of categorical columns, filtered to the threshold and about 10 rows long, with the condition named in its subtitle: `omni-content-builder` → *Tiles an alert can watch* in `references/dashboard-style.md`.

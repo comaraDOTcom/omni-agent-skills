@@ -16,6 +16,7 @@ The [Design defaults](../SKILL.md#design-defaults) make a dashboard readable. Th
 - [Legends and axis formats](#legends-and-axis-formats)
 - [Titles, subtitles, and KPI height](#titles-subtitles-and-kpi-height)
 - [Scope filters vs viewer controls](#scope-filters-vs-viewer-controls)
+- [Tiles an alert can watch](#tiles-an-alert-can-watch)
 - [Checklist before publishing](#checklist-before-publishing)
 
 ## Order by what can still change
@@ -184,6 +185,15 @@ Check the axis reads 0–100% in a PNG render.
 - **Fixed scope** (one business unit, open status only) goes in each tile's `query.filters`. Nobody changes it, so it shouldn't take a control.
 - **At most 5 viewer-facing controls**, each one a viewer would change.
 - **A dashboard control replaces a tile-level filter on the same field.** With the control blank the tile shows every row, and with it set the tile shows the control's value only ([controls.md](controls.md#map--per-tile-scoping)). Scope through a different field that has no dashboard control.
+
+## Tiles an alert can watch
+
+An alert is a schedule with a condition on one tile (set up in `omni-content-explorer` → *Alerts*). The tile decides whether the alert is useful:
+
+- **Categorical columns only** (item, owner, band), filtered to the rows at the threshold. The tile then changes only when a row enters, leaves, or changes band, so a `RESULTS_CHANGED` alert fires on real change. A numeric column changes on every run, so the alert fires daily.
+- **Keep the list short.** An alert that lists 50 or more rows every run gets ignored. Filter to the rows someone should act on (a threshold, a recent window such as "crossed 100% in the last 14 days", or a minimum size), and aim for about 10 rows or fewer on a normal day.
+- **Name the condition in the subtitle** ("Alert: Results changed, daily"), so whoever sets the alert picks the right one. `RESULTS_CHANGED` suits a watchlist; `RESULTS_PRESENT` suits an exception list that should normally be empty.
+- **Put alertable lists on their own page,** with their optional filters (for example "only my jobs") next to them. The alert keeps the filter values set when it is created.
 
 ## Checklist before publishing
 

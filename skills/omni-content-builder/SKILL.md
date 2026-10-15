@@ -31,6 +31,7 @@ For an operational or exec dashboard, also apply [references/dashboard-style.md]
 - **Relative dates everywhere** — on the date control and every tile filter; no month names in titles or labels.
 - **One meaning per colour**, always with a text label; set single-series colours explicitly.
 - **Fixed scope in tile filters**; 5 or fewer viewer controls.
+- **A tile someone will alert on is a short categorical watchlist** (about 10 rows, filtered to the threshold), with the condition named in its subtitle.
 
 ## Known Issues & Safe Defaults
 
@@ -197,10 +198,6 @@ What to check in each response, the full viz-spec table, the checklist, and an o
 ## Dashboard Downloads
 
 Downloads are asynchronous: start one with `omni dashboards download`, poll `download-status` until the job reaches a terminal state, then fetch the file with `download-file`. Single-tile and data formats, the one-page limit on multi-page dashboards, and what "Job failed to render" means: [references/downloads.md](references/downloads.md).
-
-## Dashboard Alerts
-
-Alerts on a dashboard tile are covered in **`omni-content-explorer`** → *Alerts*, including how to shape the watched tile (categorical columns for `RESULTS_CHANGED`, about 10 rows or fewer).
 
 ## Docs Reference
 

@@ -172,9 +172,9 @@ Formats: `pdf`, `png`
 An alert is a schedule with a condition on one tile of an existing dashboard: it runs on its cron and delivers only when the condition holds. Any user who can schedule the dashboard can create one; it needs no admin rights. Add `conditionType` (`RESULTS_PRESENT`, `RESULTS_MISSING`, `RESULTS_CHANGED`, `RESULTS_UNCHANGED`) and `conditionQueryMapKey` (the watched tile's key in `queryPresentations.data`) to the `schedules create` body; each requires the other. Confirm field names with `omni schedules create --schema` first.
 
 - **An alert sends messages to people.** Confirm the recipients with the user before creating one.
-- **A `RESULTS_CHANGED` tile with a numeric column fires every run.** Watch categorical columns only, filtered to the rows at the threshold.
+- **The tile decides whether the alert is useful.** Shaping it is builder work: `omni-content-builder` → *Tiles an alert can watch*.
 
-The condition table, a create example, and how to choose a tile worth alerting on (list length, condition per tile, cron timing, own page with `filterConfig`): [references/alerts.md](references/alerts.md). For plain scheduled deliveries and recipients, see **`omni-admin`** → *Schedules*; to build or change the watched tile, see **`omni-content-builder`**.
+The condition table, a create example, and cron timing: [references/alerts.md](references/alerts.md). For plain scheduled deliveries and recipients, see **`omni-admin`** → *Schedules*; to build or change the watched tile, see **`omni-content-builder`**.
 
 ## URL Patterns
 
