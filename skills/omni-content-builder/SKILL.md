@@ -198,6 +198,10 @@ What to check in each response, the full viz-spec table, the checklist, and an o
 
 Downloads are asynchronous: start one with `omni dashboards download`, poll `download-status` until the job reaches a terminal state, then fetch the file with `download-file`. Single-tile and data formats, the one-page limit on multi-page dashboards, and what "Job failed to render" means: [references/downloads.md](references/downloads.md).
 
+## Dashboard Alerts
+
+An alert is a schedule with a condition on one tile: `schedules create` with `conditionType` and `conditionQueryMapKey`. The condition types, the watchlist-tile pattern for `RESULTS_CHANGED`, and how to design a tile worth subscribing to: [references/alerts.md](references/alerts.md). An alert sends messages to people, so confirm the recipients first.
+
 ## Docs Reference
 
 - [Documents API](https://docs.omni.co/api/documents.md) · [Dashboard Downloads](https://docs.omni.co/api/dashboard-downloads.md) · [Query API](https://docs.omni.co/api/queries.md) · [Schedules API](https://docs.omni.co/api/schedules.md) · [Visualization Types](https://docs.omni.co/visualize-present/visualizations.md)
@@ -209,4 +213,4 @@ Downloads are asynchronous: start one with `omni dashboards download`, poll `dow
 - **omni-query** — test queries before adding to dashboards
 - **omni-content-explorer** — find existing dashboards to learn from
 - **omni-embed** — embed dashboards you've built in external apps
-- **omni-admin** — schedules and alerts on a dashboard, including the watchlist-tile pattern for `RESULTS_CHANGED`
+- **omni-admin** — scheduled deliveries, recipients and email-only users
