@@ -173,7 +173,7 @@ Omni wraps a query view's `sql:` as a derived table. Two things follow on T-SQL:
 - **Alias every `${other_query_view}` reference.** It is inlined as a bare subquery, so `FROM ${job_hours} WHERE …` fails. Write `FROM ${job_hours} jh`.
 
 ```yaml
-# job_burn.query.view — instead of WITH hours AS (…) SELECT … FROM hours
+# job_burn.query.view — the hours rollup as a nested derived table
 sql: |
   SELECT h.job_id, h.hours, b.budget_hours,
          h.hours / NULLIF(b.budget_hours, 0) AS pct_of_budget

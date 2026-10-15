@@ -2,8 +2,6 @@
 
 The [Design defaults](../SKILL.md#design-defaults) make a dashboard readable. This reference makes an operational or exec dashboard *actionable*: a viewer should finish it knowing what to do today and with whom. Same rule as the defaults: direction from the user, an existing dashboard's conventions, or an org theme wins.
 
-Field-tested on a customer build (CLI 1.4.0). Where a result is "observed", it was seen on a live instance but is not documented behavior; re-check it with a PNG render.
-
 ## Contents
 
 - [Order by what can still change](#order-by-what-can-still-change)
@@ -92,9 +90,9 @@ Three pages, each answering the next question:
 
 1. **Overview** — the KPI that says whether there is a problem.
 2. **Breakdown** — where it is: a `heatmap` of department × business unit ([visConfig.md](visConfig.md#config-object-heatmap)), clickable to drill.
-3. **Deep dive** — "pick a team": a single-select string filter placed **in the page**, not the filter bar, and a "View by" filter **inside the chart tile** that changes which dimension the chart breaks down by.
+3. **Deep dive** — "pick a team": a single-select string filter placed **in the page**, and a "View by" filter **inside the chart tile** that changes which dimension the chart breaks down by.
 
-**Build "View by" in the model, not with `FIELD_SELECTION`.** Observed: a `FIELD_SELECTION` switcher swaps the field in the tile's query, but a cartesian chart names its category field in `visConfig` (`y.field` / `x.field`, plus the axis `sort`), so pressing the switcher changed nothing on the chart. Use a filter-only field and a templated `CASE` dimension instead ([omni-model-builder → templated-filters.md](../../omni-model-builder/references/templated-filters.md)). The chart always plots `breakdown`, and "View by" is an ordinary single-select filter:
+**Build "View by" as a templated dimension.** A cartesian chart pins its category field in `visConfig` (`y.field` / `x.field`, plus the axis `sort`), so a `FIELD_SELECTION` switcher swaps the field in the tile's query without changing what the chart plots. Use a filter-only field and a templated `CASE` dimension ([omni-model-builder → templated-filters.md](../../omni-model-builder/references/templated-filters.md)). The chart always plots `breakdown`, and "View by" is an ordinary single-select filter:
 
 ```yaml
 # topic views: block (or the view file)
@@ -115,7 +113,7 @@ time:
         END
 ```
 
-On SQL Server and Fabric, `CONVERT(varchar(7), x, 120)` in a model field failed with "CAST second argument should always be a type"; `FORMAT(x, 'yyyy-MM')` worked. Sort the chart by a measure (for example hours, descending) rather than by the breakdown, so every View by option reads sensibly.
+On SQL Server and Fabric, format the month with `FORMAT(x, 'yyyy-MM')`; `CONVERT` with a style code is rejected in a model field ("CAST second argument should always be a type"). Sort the chart by a measure (for example hours, descending), so every View by option reads sensibly.
 
 ```jsonc
 // controls.data
@@ -157,7 +155,7 @@ One value axis only; never put the two on `y` and `y2`.
 
 ## Shares that sum to 100%
 
-Observed: `barStackedPercentage` did **not** normalise raw-hour measures; the axis showed 1,600,000%. Model the shares instead:
+`barStackedPercentage` does not normalise raw measures: stacking raw hours gives an axis that reads 1,600,000%. Model the shares:
 
 1. Define one share measure per segment series (`billable_hours / total_hours`, `non_billable_hours / total_hours`, …), so the series sum to 1 on every bar.
 2. Chart the share measures with `barStacked` and pin the value axis:
@@ -171,7 +169,7 @@ Check the axis reads 0–100% in a PNG render.
 
 ## Legends and axis formats
 
-- **Legend at the bottom:** `config.color.legendPosition: "bottom"` (lowercase). Observed: `"BOTTOM"` rendered the legend over the bars in a PNG export.
+- **Legend at the bottom:** `config.color.legendPosition: "bottom"`. The values are lowercase; an uppercase value draws the legend over the bars.
 - **Rename legend entries** with `series[].title.value`; there is no `series[].label` ([visConfig.md](visConfig.md#series-array)).
 - **Axis number format:** `<axis>.axis.label.format.format`, e.g. `"number_0"`, `"gbpcurrency_0"`, `"percent_0"`.
 
@@ -183,7 +181,7 @@ Check the axis reads 0–100% in a PNG render.
 
 ## Scope filters vs viewer controls
 
-- **Fixed scope** (one business unit, open status only) goes in each tile's `query.filters`, not the filter bar. Nobody changes it, so it shouldn't take a control.
+- **Fixed scope** (one business unit, open status only) goes in each tile's `query.filters`. Nobody changes it, so it shouldn't take a control.
 - **At most 5 viewer-facing controls**, each one a viewer would change.
 - **A dashboard control replaces a tile-level filter on the same field.** With the control blank the tile shows every row, and with it set the tile shows the control's value only ([controls.md](controls.md#map--per-tile-scoping)). Scope through a different field that has no dashboard control.
 

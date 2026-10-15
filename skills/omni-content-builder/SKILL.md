@@ -30,7 +30,7 @@ For an operational or exec dashboard, also apply [references/dashboard-style.md]
 - **Every view drills.** Use `{{view.field.value}}` for names and key numbers in markdown; `.value_static` is display-only.
 - **Relative dates everywhere** — on the date control and every tile filter; no month names in titles or labels.
 - **One meaning per colour**, always with a text label; set single-series colours explicitly.
-- **Fixed scope in tile filters, not the filter bar**; 5 or fewer viewer controls.
+- **Fixed scope in tile filters**; 5 or fewer viewer controls.
 
 ## Known Issues & Safe Defaults
 
